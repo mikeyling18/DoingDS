@@ -1,0 +1,43 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+```{r}
+library(ggplot2)
+library(doBy)
+```
+ 
+
+```{r}
+df = read.csv("dds_datasets/nyt1.csv")
+
+# Bin people by age groups
+age_cat = c(-Inf, 18, 24, 34, 44, 54, 64, Inf)
+df$Age_Cat = cut(df$Age, age_cat)
+
+#Add click-through-rate column
+df$ctr = df$Clicks/df$Impressions
+
+head(df)
+```
+
+Get Some Stats
+```{r}
+summary(df)
+```
+
+
+Visualize Age Groups
+```{r}
+ggplot(data=df, aes(x=Impressions)) +
+  geom_histogram(binwidth = 1
+                 )
+ggplot(data=df, aes(x=Age_Cat, y=Impressions, fill=Age_Cat)) +
+  geom_boxplot()
+
+
+```
+
