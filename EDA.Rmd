@@ -17,7 +17,7 @@ siterange <- function(x){c(length(x), min(x), mean(x), max(x))}
 
 ```{r}
 df = read.csv("dds_datasets/nyt2.csv")
-
+df$Gender = factor(df$Gender)
 # Bin people by age groups
 age_cat = c(-Inf, 18, 24, 34, 44, 54, 64, Inf)
 df$Age_Cat = cut(df$Age, age_cat)
@@ -41,35 +41,41 @@ summaryBy(ctr ~ Age_Cat, data=df2, FUN=siterange)
 
 Based on the results below, the females in between ages 18-24 have absolute minimum click through rate...
 ```{r results='hold'}
-summaryBy(ctr ~ Gender + Age_Cat, data=df2, FUN=siterange)
+summaryBy(ctr ~ Age_Cat + Gender, data=df2, FUN=siterange)
 ```
 
 Visualize Age Groups
+
+As you can see here, the overwhelming number of people in the sample population have a click through rate of 0, so we get rid of samples that have a CTR of 0. The second graph gives us a little more information.
 ```{r}
+ggplot(data=df2, aes(x=Age_Cat, y=ctr, fill=factor(Gender))) +
+  geom_boxplot() +
+  scale_fill_discrete(name="Legend", labels=c("Female", "Male"))
+
 ggplot(data=subset(df2, ctr>0), aes(x=Age_Cat, y=ctr, fill=factor(Gender))) +
-  geom_boxplot() 
-  # ylim(0,0.3)
+  geom_boxplot() +
+  scale_fill_discrete(name="Legend", labels=c("Female", "Male"))
 ```
 
 ```{r}
-summaryBy(Age~Age_Cat, data =df, FUN=siterange)
 
 df$hasimps <-cut(df$Impressions,c(-Inf,0,Inf))
+
+summaryBy(Age~Age_Cat, data =df, FUN=siterange)
 summaryBy(Clicks~hasimps + Gender, data =df, FUN=siterange)
 
-ggplot(subset(df, Impressions>0), aes(x=Clicks/Impressions, colour=Age_Cat)) +
-  geom_density()
 ggplot(subset(df, Clicks>0), aes(x=Clicks/Impressions,colour=Age_Cat)) +
   geom_density()
-ggplot(subset(df, Clicks>0), aes(x=Age_Cat, y=Clicks, fill=Age_Cat)) +
-  geom_boxplot()
-ggplot(subset(df, Clicks>0), aes(x=Clicks, colour=Age_Cat)) +
-  geom_density()
+
 
 
 ```
 
+Let's categories the Impressions
 ```{r}
+df$imp_cat[df$Impressions == 0] <- "NoImps"
+df$imp_cat[df$Impressions > 0] <- "Imps"
+df
 
 ```
 
